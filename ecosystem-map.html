@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phalanx Prime — Ecosystem Map</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --gold-dark: #7A5C0F;
+      --black: #080808;
+      --dark: #111111;
+      --dark-2: #1A1A1A;
+      --white: #F0EEE8;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      text-align: center;
+      padding: 60px 40px 20px;
+      position: relative;
+      z-index: 10;
+    }
+    .header-eyebrow {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-size: clamp(22px, 3vw, 38px);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    header p {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(240,238,232,0.45);
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* ── MAP CANVAS ── */
+    .map-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 40px auto 0;
+      padding: 0 40px 80px;
+    }
+
+    /* SVG connector lines */
+    .connectors {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── TIER ROWS ── */
+    .tier {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 0;
+    }
+
+    .tier-label {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.35);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    /* ── NODE ── */
+    .node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.25s;
+      padding: 16px 12px;
+    }
+    .node:hover { transform: translateY(-6px); }
+    .node:hover .node-ring { border-color: var(--gold); box-shadow: 0 0 24px rgba(201,168,76,0.35); }
+    .node:hover .node-label { color: var(--gold); }
+
+    .node-ring {
+      border-radius: 50%;
+      border: 1.5px solid rgba(201,168,76,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--dark-2);
+      transition: border-color 0.25s, box-shadow 0.25s;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .node-ring img {
+      object-fit: contain;
+      display: block;
+    }
+    .node-ring.text-node {
+      background: rgba(201,168,76,0.06);
+      border: 1.5px solid rgba(201,168,76,0.2);
+    }
+    .node-ring.text-node span {
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.4;
+      padding: 8px;
+    }
+
+    /* SIZE VARIANTS */
+    .node--apex .node-ring   { width: 130px; height: 130px; border-width: 2px; border-color: rgba(201,168,76,0.5); }
+    .node--apex .node-ring img { width: 110px; height: 110px; padding: 10px; }
+    .node--hub .node-ring    { width: 96px; height: 96px; }
+    .node--hub .node-ring img { width: 80px; height: 80px; padding: 8px; }
+    .node--mid .node-ring    { width: 78px; height: 78px; }
+    .node--mid .node-ring img { width: 64px; height: 64px; padding: 6px; }
+    .node--venture .node-ring { width: 66px; height: 66px; }
+    .node--venture .node-ring img { width: 52px; height: 52px; padding: 5px; }
+
+    .node-label {
+      margin-top: 10px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-align: center;
+      color: rgba(240,238,232,0.55);
+      transition: color 0.25s;
+      max-width: 90px;
+      line-height: 1.4;
+    }
+    .node-sublabel {
+      font-size: 7.5px;
+      font-weight: 400;
+      color: rgba(240,238,232,0.28);
+      letter-spacing: 1px;
+      text-align: center;
+      margin-top: 3px;
+      max-width: 90px;
+    }
+
+    /* ── GOLD PULSE on apex ── */
+    .node--apex .node-ring::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.12);
+      animation: pulse 3s ease-in-out infinite;
+    }
+    .node-ring { position: relative; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.04); }
+    }
+
+    /* ── CONNECTOR SVG LINES ── */
+    .connector-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    /* ── TIER SPACERS ── */
+    .spacer { height: 10px; }
+    .spacer-sm { height: 4px; }
+
+    /* ── DIVIDER ── */
+    .tier-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 8px 60px;
+      position: relative;
+      z-index: 2;
+    }
+    .tier-divider::before, .tier-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(201,168,76,0.15), transparent);
+    }
+    .tier-divider span {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(201,168,76,0.3);
+      white-space: nowrap;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding: 32px 40px 60px;
+      border-top: 1px solid rgba(201,168,76,0.08);
+      margin-top: 20px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(240,238,232,0.35);
+    }
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid;
+    }
+    .legend-dot.governance  { border-color: rgba(201,168,76,0.8); background: rgba(201,168,76,0.15); }
+    .legend-dot.operations  { border-color: rgba(100,180,255,0.6); background: rgba(100,180,255,0.1); }
+    .legend-dot.ventures    { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
+    .legend-dot.research    { border-color: rgba(160,120,255,0.6); background: rgba(160,120,255,0.1); }
+    .legend-dot.agents      { border-color: rgba(80,220,160,0.6); background: rgba(80,220,160,0.1); }
+
+    /* Colour rings for category */
+    .node--governance .node-ring { border-color: rgba(201,168,76,0.5); }
+    .node--operations .node-ring { border-color: rgba(100,180,255,0.3); }
+    .node--research .node-ring   { border-color: rgba(160,120,255,0.3); }
+    .node--agents .node-ring     { border-color: rgba(80,220,160,0.3); }
+
+    /* ── TOOLTIP ── */
+    .node-tip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark-2);
+      border: 1px solid rgba(201,168,76,0.25);
+      padding: 8px 14px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--white);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 20;
+    }
+    .node:hover .node-tip { opacity: 1; }
+
+    /* ── GRID LAYOUT ── */
+    .map-grid {
+      display: grid;
+      grid-template-rows: auto;
+      gap: 0;
+      position: relative;
+    }
+
+    /* ── AGENT ROW ── */
+    .agent-strip {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+    .agent-strip .node--venture .node-ring { width: 56px; height: 56px; }
+    .agent-strip .node--venture .node-ring img { width: 44px; height: 44px; }
+
+    @media (max-width: 700px) {
+      .map-wrap { padding: 0 16px 60px; }
+      .node-ring.node--apex { width: 90px; height: 90px; }
+      .node { padding: 10px 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Phalanx Prime Group</div>
+  <h1>The Ecosystem</h1>
+  <p>Governance · Operations · Ventures · Intelligence · Agents</p>
+</header>
+
+<div class="map-wrap">
+  <div class="map-grid">
+
+    <!-- ══════════════════════════════
+         TIER 1 — GOVERNANCE
+    ══════════════════════════════ -->
+    <div class="tier-divider"><span>Governance</span></div>
+
+    <div class="tier">
+      <!-- PAX AETERNUM — apex -->
+      <div class="node node--apex node--governance">
+        <div class="node-ring text-node">
+          <span>PAX<br/>AETERNUM</span>
+        </div>
+        <div class="node-label">Pax Aeternum</div>
+        <div class="node-sublabel">Governance Layer</div>
+        <div class="node-tip">Supreme governance & ethics</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         TIER 2 — PHALANX PRIME HUB
+    ══════════════════════════════ -->
+    <div class="tier-divider"><span>Operations Hub</span></div>
+
+    <div class="tier">
+      <!-- PHALANX DIGITAL -->
+      <div class="node node--hub node--operations">
+        <div class="node-ring dark-logo">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/0dc8a60bf_PD_canonical_logo_transparentized.png" alt="Phalanx Digital" style="padding:10px;" />
+        </div>
+        <div class="node-label">Phalanx Digital</div>
+        <div class="node-sublabel">Agency · Delivery</div>
+        <div class="node-tip">Client-facing agency arm</div>
+      </div>
+
+      <!-- PHALANX PRIME -->
+      <div class="node node--hub node--governance">
+        <div class="node-ring">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/dd967bfcc_phalanxprimects29.png" alt="Phalanx Prime" style="padding:8px;" />
+        </div>
+        <div class="node-label">Phalanx Prime</div>
+        <div class="node-sublabel">Operational Core</div>
+        <div class="node-tip">Product realisation · A$4,500/mo target</div>
+      </div>
+
+      <!-- PLASTICITY LABS -->
+      <div class="node node--hub node--research">
+        <div class="node-ring dark-logo">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/18d941da4_ChatGPTImageMay18202602_59_14AM.png" alt="Plasticity Labs" style="object-fit:cover;object-position:top left;width:100%;height:100%;" />
+        </div>
+        <div class="node-label">Plasticity Labs</div>
+        <div class="node-sublabel">Research · Neuroscience</div>
+        <div class="node-tip">Rewiring Human Potential</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         TIER 3 — VENTURES
+    ══════════════════════════════ -->
+    <div class="tier-divider"><span>Ventures</span></div>
+
+    <div class="tier" style="flex-wrap:wrap; gap:0;">
+
+      <!-- CARRI -->
+      <div class="node node--mid">
+        <div class="node-ring dark-logo">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/e7951a79f_carrilogonobackground.png" alt="Carri" style="padding:10px;" />
+        </div>
+        <div class="node-label">Carri</div>
+        <div class="node-sublabel">Ride-hailing</div>
+        <div class="node-tip">ACT-first launch · carri.com.au</div>
+      </div>
+
+      <!-- ATELIER -->
+      <div class="node node--mid">
+        <div class="node-ring text-node">
+          <span>ATELIER<br/>GF</span>
+        </div>
+        <div class="node-label">Atelier GF</div>
+        <div class="node-sublabel">Fine Art · Gallery</div>
+        <div class="node-tip">Flask · Stripe · PostgreSQL</div>
+      </div>
+
+      <!-- MINDFORGE -->
+      <div class="node node--mid node--research">
+        <div class="node-ring dark-logo">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/eac6c9ff0_ChatGPTImageMay18202602_43_49AM.png" alt="MindForge" style="object-fit:cover;object-position:top center;width:100%;height:100%;" />
+        </div>
+        <div class="node-label">MindForge</div>
+        <div class="node-sublabel">Psychology · Performance</div>
+        <div class="node-tip">Forge Your Mind · mindforge.com.au</div>
+      </div>
+
+      <!-- CARPARTSHUB -->
+      <div class="node node--mid">
+        <div class="node-ring">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/abbf8cb3e_ewlogoembossed.png" alt="CarPartsHub" style="padding:4px;" />
+        </div>
+        <div class="node-label">CarPartsHub</div>
+        <div class="node-sublabel">Auto Parts · Dropship</div>
+        <div class="node-tip">carpartshub.com.au</div>
+      </div>
+
+      <!-- 99 SPIKY RD -->
+      <div class="node node--mid">
+        <div class="node-ring dark-logo">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/3b6fe0cfb_99sr-current-logo-transparent.png" alt="99 Spiky Rd" style="padding:6px;" />
+        </div>
+        <div class="node-label">99 Spiky Rd</div>
+        <div class="node-sublabel">Apparel · Merch</div>
+        <div class="node-tip">99spikyrd.com.au</div>
+      </div>
+
+      <!-- PAWHAUS -->
+      <div class="node node--mid">
+        <div class="node-ring">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/caeafb6dd_logo.png" alt="PawHaus" style="padding:6px;" />
+        </div>
+        <div class="node-label">PawHaus</div>
+        <div class="node-sublabel">Pet Supplies · P0</div>
+        <div class="node-tip">pawhaus.com.au · WooCommerce</div>
+      </div>
+
+      <!-- STH -->
+      <div class="node node--mid">
+        <div class="node-ring">
+          <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/65bdfa77a_ChatGPTImageMay1202604_29_10PM.png" alt="Southern Tablelands Hydroponics" style="object-fit:cover;object-position:top left;width:100%;height:100%;" />
+        </div>
+        <div class="node-label">STH</div>
+        <div class="node-sublabel">Hydroponics · Agriculture</div>
+        <div class="node-tip">Clean Growth. Regional Strength.</div>
+      </div>
+
+      <!-- COLLECTIVE WRITINGS -->
+      <div class="node node--mid">
+        <div class="node-ring text-node">
+          <span>COLLECTIVE<br/>WRITINGS</span>
+        </div>
+        <div class="node-label">Collective Writings</div>
+        <div class="node-sublabel">Literary · Publishing</div>
+        <div class="node-tip">4 pen names · collectivewritings.com.au</div>
+      </div>
+
+      <!-- GUSTAV FLEMMING -->
+      <div class="node node--mid">
+        <div class="node-ring text-node">
+          <span>GUSTAV<br/>FLEMMING</span>
+        </div>
+        <div class="node-label">Gustav Flemming</div>
+        <div class="node-sublabel">Art · Music · Creative</div>
+        <div class="node-tip">gustavflemming.com</div>
+      </div>
+
+      <!-- KIDS BOUTIQUE -->
+      <div class="node node--mid" style="opacity:0.45;">
+        <div class="node-ring text-node" style="border-style:dashed;">
+          <span>KIDS<br/>BOUTIQUE</span>
+        </div>
+        <div class="node-label">Kids Boutique</div>
+        <div class="node-sublabel">Children's · Inception</div>
+        <div class="node-tip">Name & domain TBD · P0</div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════
+         TIER 4 — AGENTS / INTELLIGENCE
+    ══════════════════════════════ -->
+    <div class="tier-divider"><span>Agents · Intelligence</span></div>
+
+    <div class="agent-strip">
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">G</span></div>
+        <div class="node-label">Giles</div>
+        <div class="node-sublabel">Productivity</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">J</span></div>
+        <div class="node-label">John</div>
+        <div class="node-sublabel">Finance · ASX</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">SC</span></div>
+        <div class="node-label">Scout</div>
+        <div class="node-sublabel">Dropship Ops</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">K</span></div>
+        <div class="node-label">Konstantin</div>
+        <div class="node-sublabel">Orchestrator</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">M</span></div>
+        <div class="node-label">Maren</div>
+        <div class="node-sublabel">Client SLT</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">MR</span></div>
+        <div class="node-label">MARO</div>
+        <div class="node-sublabel">Marketing</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">DM</span></div>
+        <div class="node-label">Data Mgr</div>
+        <div class="node-sublabel">5 Scrapers</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">BD</span></div>
+        <div class="node-label">BD Mgr</div>
+        <div class="node-sublabel">Pipeline</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">LP</span></div>
+        <div class="node-label">LPA-01</div>
+        <div class="node-sublabel">Literary</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">AU</span></div>
+        <div class="node-label">AUT-01</div>
+        <div class="node-sublabel">Auto Parts</div>
+      </div>
+
+      <div class="node node--venture node--agents">
+        <div class="node-ring text-node"><span style="font-size:9px;font-weight:900;">CP</span></div>
+        <div class="node-label">CP-D-01</div>
+        <div class="node-sublabel">Plumbing</div>
+      </div>
+
+    </div>
+
+    <!-- SVG CONNECTOR LINES -->
+    <svg class="connector-svg" id="connectors" xmlns="http://www.w3.org/2000/svg"></svg>
+
+  </div><!-- end map-grid -->
+</div><!-- end map-wrap -->
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot governance"></div>Governance / Core</div>
+  <div class="legend-item"><div class="legend-dot operations"></div>Operations / Agency</div>
+  <div class="legend-item"><div class="legend-dot research"></div>Research / IP</div>
+  <div class="legend-item"><div class="legend-dot ventures"></div>Ventures</div>
+  <div class="legend-item"><div class="legend-dot agents"></div>Agents</div>
+</div>
+
+<!-- FOOTER STRIP -->
+<div style="text-align:center; padding: 0 40px 60px; border-top: 1px solid rgba(201,168,76,0.08);">
+  <div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,0.35);margin-bottom:20px;">A Phalanx Prime Group Entity</div>
+  <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/0dc8a60bf_PD_canonical_logo_transparentized.png" alt="Phalanx Digital" style="height:36px;opacity:0.6;" />
+</div>
+
+<script>
+  // Draw connector lines between tiers after layout
+  function drawLines() {
+    const svg = document.getElementById('connectors');
+    svg.innerHTML = '';
+    const wrap = document.querySelector('.map-grid');
+    const wrapRect = wrap.getBoundingClientRect();
+    const scrollY = window.scrollY;
+
+    const tiers = document.querySelectorAll('.tier');
+    if (tiers.length < 2) return;
+
+    // Connect each tier's nodes to the tier below
+    for (let t = 0; t < tiers.length - 1; t++) {
+      const fromNodes = tiers[t].querySelectorAll('.node');
+      const toNodes = tiers[t + 1].querySelectorAll('.node');
+
+      // Find centre of bottom of from-tier and top of to-tier
+      fromNodes.forEach(fromNode => {
+        const fRect = fromNode.getBoundingClientRect();
+        const fx = fRect.left + fRect.width / 2 - wrapRect.left;
+        const fy = fRect.bottom - wrapRect.top + scrollY - wrap.getBoundingClientRect().top;
+
+        toNodes.forEach(toNode => {
+          const tRect = toNode.getBoundingClientRect();
+          const tx = tRect.left + tRect.width / 2 - wrapRect.left;
+          const ty = tRect.top - wrapRect.top + scrollY - wrap.getBoundingClientRect().top;
+
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', fx);
+          line.setAttribute('y1', fy);
+          line.setAttribute('x2', tx);
+          line.setAttribute('y2', ty);
+          line.setAttribute('stroke', 'rgba(201,168,76,0.08)');
+          line.setAttribute('stroke-width', '1');
+          svg.appendChild(line);
+        });
+      });
+    }
+  }
+
+  window.addEventListener('load', drawLines);
+  window.addEventListener('resize', drawLines);
+</script>
+</body>
+</html>

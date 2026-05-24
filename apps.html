@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phalanx Digital — Products</title>
+  <link rel="icon" href="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/20832bca3_fav.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --black: #0A0A0A;
+      --dark: #111111;
+      --dark-2: #1A1A1A;
+      --dark-3: #222222;
+      --white: #F5F5F0;
+      --grey: #666;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 60px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      transition: background 0.3s, padding 0.3s;
+    }
+    nav.scrolled { background: rgba(10,10,10,0.97); border-bottom: 1px solid rgba(201,168,76,0.15); padding: 14px 60px; }
+    .nav-brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; }
+    .nav-wordmark { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.12em; color: var(--gold); }
+    .nav-sub { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--white); opacity: 0.35; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { color: var(--white); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.65; transition: opacity 0.2s, color 0.2s; }
+    .nav-links a:hover { opacity: 1; color: var(--gold); }
+    .nav-cta { border: 1px solid var(--gold) !important; color: var(--gold) !important; padding: 9px 22px; opacity: 1 !important; }
+    .nav-cta:hover { background: var(--gold) !important; color: var(--black) !important; }
+
+    /* HERO */
+    .hero {
+      padding: 180px 60px 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at 70% 40%, rgba(201,168,76,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 24px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 36px; height: 1px; background: var(--gold); }
+    .hero h1 {
+      font-size: clamp(42px, 6vw, 80px);
+      font-weight: 900; line-height: 1.0; letter-spacing: -1.5px;
+      margin-bottom: 24px; max-width: 800px;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub {
+      font-size: 15px; font-weight: 300; line-height: 1.85;
+      color: rgba(245,245,240,0.6); max-width: 560px;
+    }
+
+    /* PRODUCT GRID */
+    .products { padding: 80px 60px; }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2px;
+      background: rgba(201,168,76,0.06);
+      margin-top: 48px;
+    }
+    .product-card {
+      background: var(--dark-2);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background 0.2s;
+      position: relative;
+    }
+    .product-card:hover { background: var(--dark-3); }
+    .product-card.featured { border-top: 2px solid var(--gold); }
+    .product-card-body { padding: 2.25rem; flex: 1; }
+    .product-tag {
+      font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); opacity: 0.65; margin-bottom: 12px;
+    }
+    .product-card h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; letter-spacing: 0.1em; color: var(--white);
+      margin-bottom: 6px;
+    }
+    .product-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1rem;
+      color: var(--gold); opacity: 0.8; margin-bottom: 18px;
+    }
+    .product-card p {
+      font-size: 13px; font-weight: 300;
+      color: rgba(245,245,240,0.55); line-height: 1.75;
+      margin-bottom: 24px;
+    }
+    .product-pills {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px;
+    }
+    .product-pill {
+      font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--white); opacity: 0.4;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 4px 10px;
+    }
+    .product-card-footer {
+      padding: 1.25rem 2.25rem;
+      border-top: 1px solid rgba(201,168,76,0.1);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .product-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 700; color: var(--gold);
+    }
+    .product-price small { font-size: 0.75rem; color: var(--white); opacity: 0.35; font-family: 'Montserrat', sans-serif; }
+    .product-link {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); text-decoration: none;
+      border: 1px solid rgba(201,168,76,0.35); padding: 8px 18px;
+      transition: all 0.2s;
+    }
+    .product-link:hover { background: var(--gold); color: var(--black); }
+    .product-card.featured .product-link { background: var(--gold); color: var(--black); border-color: var(--gold); }
+
+    /* STATUS BADGE */
+    .status-badge {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 10px;
+    }
+    .status-live { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .status-beta { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.25); }
+    .status-soon { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* STATEMENT */
+    .statement {
+      background: var(--gold); padding: 64px 60px; text-align: center; position: relative; z-index: 1;
+    }
+    .statement-line { display: block; font-size: clamp(28px, 4vw, 52px); font-weight: 900; color: var(--black); line-height: 1.1; }
+    .statement p { font-size: 12px; font-weight: 600; color: rgba(10,10,10,0.5); margin-top: 16px; letter-spacing: 3px; text-transform: uppercase; }
+
+    /* BUILT BY */
+    .built-by { padding: 80px 60px; background: var(--dark); }
+    .built-by-inner { display: flex; align-items: center; gap: 60px; flex-wrap: wrap; }
+    .built-by-text { flex: 1; min-width: 300px; }
+    .built-by-text h2 { font-size: clamp(28px, 3.5vw, 46px); font-weight: 800; line-height: 1.15; margin-bottom: 16px; }
+    .built-by-text p { font-size: 14px; font-weight: 300; color: rgba(245,245,240,0.55); line-height: 1.85; max-width: 480px; }
+    .built-by-text a { display: inline-block; margin-top: 32px; }
+    .built-by-img { flex-shrink: 0; }
+    .built-by-img img { width: 120px; height: 120px; object-fit: contain; opacity: 0.85; }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark); padding: 48px 60px 32px;
+      border-top: 1px solid rgba(201,168,76,0.1);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    .footer-wordmark { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.12em; color: var(--gold); }
+    .footer-sub { font-size: 11px; font-weight: 400; color: var(--white); opacity: 0.25; margin-top: 4px; letter-spacing: 1.5px; }
+    .footer-right { font-size: 11px; color: var(--white); opacity: 0.2; text-align: right; }
+
+    @media (max-width: 900px) {
+      nav, .hero, .products, .statement, .built-by, footer { padding-left: 24px; padding-right: 24px; }
+      nav.scrolled { padding: 12px 24px; }
+      .products-grid { grid-template-columns: 1fr; }
+      .built-by-inner { flex-direction: column; }
+    }
+    @media (max-width: 520px) {
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a class="nav-brand" href="https://phalanxprime.com.au">
+    <span class="nav-wordmark">PHALANX DIGITAL</span>
+    <span class="nav-sub">Products</span>
+  </a>
+  <div class="nav-links">
+    <a href="#products">Products</a>
+    <a href="https://wedge.phalanxprime.com.au">Wedge</a>
+    <a href="#contact" class="nav-cta">Get In Touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Phalanx Digital · Product Suite</div>
+  <h1>Apps built for<br /><span>Australian business.</span></h1>
+  <p class="hero-sub">Practical software — from workforce operations to ride-hailing to publishing. Each product is purpose-built, AI-powered, and ready to deploy.</p>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="hero-eyebrow" style="margin-bottom:0">Portfolio</div>
+  <div class="products-grid">
+
+    <!-- WEDGE -->
+    <div class="product-card featured">
+      <span class="status-badge status-live">Live</span>
+      <div class="product-card-body">
+        <div class="product-tag">Business Operations</div>
+        <h3>WEDGE</h3>
+        <div class="product-tagline">"The operating system for Australian SMEs."</div>
+        <p>Replaces Xero, Deputy, monday.com and Cin7 in a single platform. GPS timesheets, BAS reporting, invoicing, project management, and AI agents — from $49/month.</p>
+        <div class="product-pills">
+          <span class="product-pill">Trades</span>
+          <span class="product-pill">Construction</span>
+          <span class="product-pill">SME</span>
+          <span class="product-pill">AI Agents</span>
+        </div>
+      </div>
+      <div class="product-card-footer">
+        <div class="product-price">$49<small>/mo</small></div>
+        <a href="https://wedge.phalanxprime.com.au" class="product-link">View Product →</a>
+      </div>
+    </div>
+
+    <!-- CARRI -->
+    <div class="product-card">
+      <span class="status-badge status-beta">Beta</span>
+      <div class="product-card-body">
+        <div class="product-tag">Ride-Hailing · ACT & NSW</div>
+        <h3>CARRI</h3>
+        <div class="product-tagline">"Regional Australia's ride platform."</div>
+        <p>A purpose-built ride-hailing app for the ACT and regional NSW — where Uber doesn't go. Driver and passenger apps, live dispatch, and local operator licensing.</p>
+        <div class="product-pills">
+          <span class="product-pill">ACT</span>
+          <span class="product-pill">Regional NSW</span>
+          <span class="product-pill">Ride-Hailing</span>
+          <span class="product-pill">Local Ops</span>
+        </div>
+      </div>
+      <div class="product-card-footer">
+        <div class="product-price">POA</div>
+        <a href="#contact" class="product-link">Enquire →</a>
+      </div>
+    </div>
+
+    <!-- CW LIBRARY -->
+    <div class="product-card">
+      <span class="status-badge status-live">Live</span>
+      <div class="product-card-body">
+        <div class="product-tag">Digital Publishing · Subscription</div>
+        <h3>CW LIBRARY</h3>
+        <div class="product-tagline">"Australian fiction. No algorithms."</div>
+        <p>A curated subscription reading platform for Collective Writings titles. Unlimited access to original Australian fiction — thriller, crime, dark fantasy, and historical series.</p>
+        <div class="product-pills">
+          <span class="product-pill">Publishing</span>
+          <span class="product-pill">Subscription</span>
+          <span class="product-pill">Australian Fiction</span>
+        </div>
+      </div>
+      <div class="product-card-footer">
+        <div class="product-price">$24<small>.95/mo</small></div>
+        <a href="https://read.collectivewritings.com.au" class="product-link">View Product →</a>
+      </div>
+    </div>
+
+    <!-- ATELIER -->
+    <div class="product-card">
+      <span class="status-badge status-soon">Coming Soon</span>
+      <div class="product-card-body">
+        <div class="product-tag">Creative Marketplace</div>
+        <h3>ATELIER</h3>
+        <div class="product-tagline">"Where collectors find living artists."</div>
+        <p>A premium platform for original artwork — connecting Australian artists with serious collectors. Subscription discovery, direct purchase, and provenance tracking.</p>
+        <div class="product-pills">
+          <span class="product-pill">Art</span>
+          <span class="product-pill">Marketplace</span>
+          <span class="product-pill">Collectors</span>
+          <span class="product-pill">Artists</span>
+        </div>
+      </div>
+      <div class="product-card-footer">
+        <div class="product-price">$29<small>/mo</small></div>
+        <a href="#contact" class="product-link">Register Interest →</a>
+      </div>
+    </div>
+
+    <!-- LEARNING HUB -->
+    <div class="product-card">
+      <span class="status-badge status-beta">Beta</span>
+      <div class="product-card-body">
+        <div class="product-tag">Education Technology</div>
+        <h3>LEARNING HUB</h3>
+        <div class="product-tagline">"Structured learning for growing teams."</div>
+        <p>An LMS and skills development platform for RTOs, enterprise training teams, and professional services. AI-assisted quiz delivery, progress tracking, and compliance reporting.</p>
+        <div class="product-pills">
+          <span class="product-pill">LMS</span>
+          <span class="product-pill">RTO</span>
+          <span class="product-pill">Enterprise</span>
+          <span class="product-pill">AI Quizzes</span>
+        </div>
+      </div>
+      <div class="product-card-footer">
+        <div class="product-price">POA</div>
+        <a href="#contact" class="product-link">Enquire →</a>
+      </div>
+    </div>
+
+    <!-- PAWHAUS -->
+    <div class="product-card">
+      <span class="status-badge status-soon">Coming Soon</span>
+      <div class="product-card-body">
+        <div class="product-tag">Pet Supplies · E-Commerce</div>
+        <h3>PAWHAUS</h3>
+        <div class="product-tagline">"Premium pet. Delivered."</div>
+        <p>A curated Australian pet supplies store — premium food, accessories, and wellness products. Dropship-powered, AI-managed inventory, and fast dispatch.</p>
+        <div class="product-pills">
+          <span class="product-pill">E-Commerce</span>
+          <span class="product-pill">Pet Supplies</span>
+          <span class="product-pill">Australia</span>
+        </div>
+      </div>
+      <div class="product-card-footer">
+        <div class="product-price">Retail</div>
+        <a href="https://pawhaus.com.au" class="product-link">Visit Store →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STATEMENT -->
+<div class="statement">
+  <span class="statement-line">Built in Australia.</span>
+  <span class="statement-line">Deployed for the real world.</span>
+  <p>Phalanx Digital · phalanxprime.com.au</p>
+</div>
+
+<!-- BUILT BY -->
+<section class="built-by" id="contact">
+  <div class="built-by-inner">
+    <div class="built-by-text">
+      <div style="font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">About</div>
+      <h2>Products built by<br /><span style="color:var(--gold)">Phalanx Digital.</span></h2>
+      <p>Phalanx Digital is a systems and technology company building practical AI-powered software for Australian businesses. Every product in our suite is live-tested in real operations before it ships.</p>
+      <a href="mailto:hello@phalanxprime.com.au" class="product-link" style="margin-top:32px;display:inline-block;">Get In Touch →</a>
+    </div>
+    <div class="built-by-img">
+      <img src="https://media.base44.com/images/public/6a09c0c145d07632a00a058f/20832bca3_fav.png" alt="Phalanx Digital" />
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-wordmark">PHALANX DIGITAL</div>
+    <div class="footer-sub">phalanxprime.com.au · Australia</div>
+  </div>
+  <div class="footer-right">
+    <div>© 2026 Phalanx Digital Pty Ltd</div>
+    <div style="margin-top:4px">ABN pending · All rights reserved</div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('navbar');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60));
+</script>
+
+</body>
+</html>
